@@ -1,0 +1,10 @@
+[project]
+name = "bare-metal"
+version = "0.1.0"
+
+[scripts]
+init = "./framework/asm init"
+build = "./framework/asm build"
+run = "./framework/asm run"
+clean = "./framework/asm clean"
+debug = "./framework/asm debug"
