@@ -20,19 +20,22 @@ OBJECTS = $(FW_OBJECTS) $(APP_OBJECTS)
 
 all: $(OUT_DIR)/server
 
-debug: ASMFLAGS += -DSYSCALL_DEBUG
+debug: ASMFLAGS += -DDEBUG $(EXTRA_FLAGS)
 debug: clean all
 
 $(OUT_DIR)/server: $(OBJECTS)
-	ld $(OBJECTS) -o $(OUT_DIR)/server
+	@printf '  \033[0;36mLD\033[0m      server\n'
+	@ld $(OBJECTS) -o $(OUT_DIR)/server
 
 $(OUT_DIR)/fw/%.o: $(FW_DIR)/%.asm
 	@mkdir -p $(dir $@)
-	$(ASM) $(ASMFLAGS) $< -o $@
+	@printf '  \033[0;32mASM\033[0m     fw/%s\n' '$*.asm'
+	@$(ASM) $(ASMFLAGS) $< -o $@
 
 $(OUT_DIR)/app/%.o: $(SRC_DIR)/%.asm
 	@mkdir -p $(dir $@)
-	$(ASM) $(ASMFLAGS) $< -o $@
+	@printf '  \033[0;33mASM\033[0m     src/%s\n' '$*.asm'
+	@$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
 	rm -rf $(OUT_DIR)
