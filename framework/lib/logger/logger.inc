@@ -55,17 +55,27 @@ PREFIX_ENV_LEN     equ 20
     LOG %1, PREFIX_ERROR, 2
 %endmacro
 
+%ifdef DEBUG
 %macro LOG_JSON 1
     LOG %1, PREFIX_JSON, 1
 %endmacro
+%else
+%macro LOG_JSON 1
+%endmacro
+%endif
 
 %macro LOG_REQUEST 1
     LOG %1, PREFIX_REQUEST, 1
 %endmacro
 
+%ifdef DEBUG
 %macro LOG_DB 1
-	LOG %1, PREFIX_DB, 1 
+	LOG %1, PREFIX_DB, 1
 %endmacro
+%else
+%macro LOG_DB 1
+%endmacro
+%endif
 
 %ifdef SYSCALL_DEBUG
 %macro LOG_SYSCALL 1
@@ -117,6 +127,11 @@ PREFIX_ENV_LEN     equ 20
 %endmacro
 %endif
 
+%ifdef DEBUG
 %macro LOG_ENV 1
-	LOG %1, PREFIX_ENV, 1 
+	LOG %1, PREFIX_ENV, 1
 %endmacro
+%else
+%macro LOG_ENV 1
+%endmacro
+%endif

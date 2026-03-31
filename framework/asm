@@ -34,6 +34,12 @@ cmd_init() {
     echo -e "Run ${CYAN}apm build${NC} to build"
 }
 
+load_env() {
+    if [ -f "$ROOT_DIR/.env" ]; then
+        export $(grep -v '^#' "$ROOT_DIR/.env" | xargs)
+    fi
+}
+
 cmd_build() {
     if [ ! -d "$SRC_DIR" ]; then
         echo -e "${RED}Error: src/ not found. Run apm init${NC}"
@@ -41,7 +47,7 @@ cmd_build() {
     fi
 
     echo -e "${CYAN}Building...${NC}"
-    make -C "$FW_DIR" all --no-print-directory
+    make -C "$FW_DIR" clean all --no-print-directory
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}Done: .out/server${NC}"
     else
@@ -52,6 +58,7 @@ cmd_build() {
 
 cmd_run() {
     cmd_build || exit 1
+    load_env
     echo -e "${CYAN}Starting server...${NC}"
     "$OUT_DIR/server"
 }
@@ -67,9 +74,15 @@ cmd_debug() {
         exit 1
     fi
 
+    local extra_flags=""
+    for arg in "$@"; do
+        [ "$arg" = "--syscalls" ] && extra_flags="EXTRA_FLAGS=-DSYSCALL_DEBUG"
+    done
+
     echo -e "${YELLOW}Debug build...${NC}"
-    make -C "$FW_DIR" debug --no-print-directory
+    make -C "$FW_DIR" debug $extra_flags --no-print-directory
     if [ $? -eq 0 ]; then
+        load_env
         echo -e "${CYAN}Running in debug mode...${NC}"
         "$OUT_DIR/server"
     else
@@ -83,7 +96,7 @@ case "${1:-}" in
     build)  cmd_build ;;
     run)    cmd_run ;;
     clean)  cmd_clean ;;
-    debug)  cmd_debug ;;
+    debug)  shift; cmd_debug "$@" ;;
     *)
         echo -e "${CYAN}AsmFrameWork CLI${NC}"
         echo ""
@@ -92,6 +105,7 @@ case "${1:-}" in
         echo "  build   Build project"
         echo "  run     Build and run"
         echo "  clean   Clean build"
-        echo "  debug   Debug build and run"
+        echo "  debug              Debug build and run (all logs)"
+        echo "  debug --syscalls   Debug with syscall tracing"
         ;;
 esac
