@@ -6,7 +6,9 @@ OUT_DIR = $(ROOT_DIR)/.out
 
 INC_DIRS := $(shell find $(FW_DIR) -type d) $(shell find $(SRC_DIR) -type d 2>/dev/null)
 INC_FLAGS := $(foreach dir, $(INC_DIRS), -I$(dir)/)
-ASMFLAGS = -f elf64 $(INC_FLAGS)
+ASMFLAGS = -f elf64 -w+all -w-reloc-rel-dword -w-reloc-abs-dword -w-reloc-abs-qword $(INC_FLAGS)
+NASMFMT = $(HOME)/go/bin/nasmfmt
+TOOLS_DIR = $(FW_DIR)/tools
 
 FW_SOURCES = $(shell find $(FW_DIR) -name '*.asm' -not -path '*/example/*')
 APP_SOURCES = $(shell find $(SRC_DIR) -name '*.asm' 2>/dev/null)
@@ -16,7 +18,7 @@ APP_OBJECTS = $(APP_SOURCES:$(SRC_DIR)/%.asm=$(OUT_DIR)/app/%.o)
 
 OBJECTS = $(FW_OBJECTS) $(APP_OBJECTS)
 
-.PHONY: all clean
+.PHONY: all clean lint format
 
 all: $(OUT_DIR)/server
 
@@ -36,6 +38,16 @@ $(OUT_DIR)/app/%.o: $(SRC_DIR)/%.asm
 	@mkdir -p $(dir $@)
 	@printf '  \033[0;33mASM\033[0m     src/%s\n' '$*.asm'
 	@$(ASM) $(ASMFLAGS) $< -o $@
+
+lint:
+	@bash $(TOOLS_DIR)/lint.sh
+
+format:
+	@echo -e '\033[0;36mFormatting...\033[0m'
+	@find $(FW_DIR) $(SRC_DIR) -name '*.asm' -not -path '*/example/*' -exec $(NASMFMT) -ii 4 {} \;
+	@find $(FW_DIR) $(SRC_DIR) -name '*.asm' -not -path '*/example/*' -exec sed -i -E 's/^[ \t]+(section|global|extern|default|%macro|%endmacro|%include)/\1/g' {} \;
+	@find $(FW_DIR) $(SRC_DIR) -name '*.asm' -not -path '*/example/*' -exec sed -i -E 's/[[:space:]]+$$//' {} \;
+	@echo -e '\033[0;32mFormatted!\033[0m'
 
 clean:
 	rm -rf $(OUT_DIR)

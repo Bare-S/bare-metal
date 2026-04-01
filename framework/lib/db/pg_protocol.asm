@@ -17,9 +17,9 @@ pg_start_msg:
     db 0x00, 0x00, 0x00, 0x25          ; длина сообщения (37 bytes, big-endian)
     db 0x00, 0x03, 0x00, 0x00          ; версия протокола (3.0)
     db "user", 0
-    db "legors", 0
+    db "legors", 0                     ; Имя пользователя БД
     db "database", 0
-    db "legors", 0
+    db "legors", 0                     ; Имя БД
     db 0
     pgstart_msg_len equ $ - pg_start_msg
 

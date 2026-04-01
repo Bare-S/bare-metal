@@ -231,7 +231,7 @@ scram_parse_server_first:
     lea rdi, [scram_server_nonce]
     xor rcx, rcx
 .parse_sf_nonce:
-    cmp byte [rbx + rcx], ','
+    cmp byte [rbx + rcx], ', '
     je .parse_sf_nonce_done
     cmp byte [rbx + rcx], 0
     je .parse_sf_nonce_done
@@ -252,7 +252,7 @@ scram_parse_server_first:
     lea rdi, [scram_server_salt_b64]
     xor rcx, rcx
 .parse_sf_salt:
-    cmp byte [rbx + rcx], ','
+    cmp byte [rbx + rcx], ', '
     je .parse_sf_salt_done
     cmp byte [rbx + rcx], 0
     je .parse_sf_salt_done
@@ -275,7 +275,7 @@ scram_parse_server_first:
 .parse_sf_iter:
     cmp byte [rbx + rcx], 0
     je .parse_sf_iter_done
-    cmp byte [rbx + rcx], ','
+    cmp byte [rbx + rcx], ', '
     je .parse_sf_iter_done
     cmp byte [rbx + rcx], 13
     je .parse_sf_iter_done

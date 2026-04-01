@@ -91,20 +91,32 @@ cmd_debug() {
     fi
 }
 
+cmd_lint() {
+    bash "$FW_DIR/tools/lint.sh"
+}
+
+cmd_fmt() {
+    make -C "$FW_DIR" format --no-print-directory
+}
+
 case "${1:-}" in
     init)   cmd_init ;;
-    build)  cmd_build ;;
-    run)    cmd_run ;;
+    build)  cmd_lint && cmd_build ;;
+    run)    cmd_lint && cmd_run ;;
     clean)  cmd_clean ;;
+    lint)   cmd_lint ;;
+    fmt)    cmd_fmt ;;
     debug)  shift; cmd_debug "$@" ;;
     *)
         echo -e "${CYAN}AsmFrameWork CLI${NC}"
         echo ""
         echo "Commands:"
         echo "  init    Initialize project (create src/ from template)"
-        echo "  build   Build project"
-        echo "  run     Build and run"
+        echo "  build   Build project (lint + compile)"
+        echo "  run     Build and run (lint + compile + run)"
         echo "  clean   Clean build"
+        echo "  lint    Run linter"
+        echo "  fmt     Format all .asm files"
         echo "  debug              Debug build and run (all logs)"
         echo "  debug --syscalls   Debug with syscall tracing"
         ;;
